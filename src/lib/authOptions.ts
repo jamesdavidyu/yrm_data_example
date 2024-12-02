@@ -1,5 +1,5 @@
 import { NextAuthOptions } from "next-auth"
-import Google from "next-auth/providers/google"
+import GoogleProvider from "next-auth/providers/google"
 
 export const authOptions: NextAuthOptions = {
     secret: process.env.NEXTAUTH_SECRET,
@@ -7,11 +7,18 @@ export const authOptions: NextAuthOptions = {
         strategy: "jwt",
         maxAge: 1 * 24 * 60 * 60, // 1 day
     },
-    pages: { signIn: "/" },
+    pages: { signIn: "/", signOut: "/" },
     providers: [
-        Google({
-            clientId: process.env.GOOGLE_ID ?? "",
-            clientSecret: process.env.GOOGLE_SECRET ?? "",
+        GoogleProvider({
+            clientId: process.env.GOOGLE_CLIENT_ID ?? "",
+            clientSecret: process.env.GOOGLE_CLIENT_SECRET ?? "",
+            authorization: {
+                params: {
+                    prompt: "consent",
+                    access_type: "offline",
+                    response_type: "code"
+                }
+            }
         }),
         // CredentialsProvider({
         //     id: "credentials",
@@ -57,11 +64,19 @@ export const authOptions: NextAuthOptions = {
     ],
     callbacks: {
         async signIn({ user, account, profile }) {
-            console.log(user)
-            console.log(account)
-            console.log(profile)
+            console.log("userrrrr", user);
             return true
-        }
+        },
+        // async session({ session, token, user}) {
+        //     return session;
+        // },
+        // async jwt({ token, account, user }) {
+        //     if (account) {
+        //         token.accessToken = account.access_token;
+        //         token.id = user?.id;
+        //     }
+        //     return token;
+        // }
         // session({ session, token, user }) {
         //     session.user.id = token.id as string;            
         //     session.user.name = token.name as string;,
